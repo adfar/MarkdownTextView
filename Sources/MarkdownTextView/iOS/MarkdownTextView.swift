@@ -108,7 +108,7 @@ public class MarkdownTextView: UIView {
     }
     
     @discardableResult
-    public func becomeFirstResponder() -> Bool {
+    public override func becomeFirstResponder() -> Bool {
         return textView.becomeFirstResponder()
     }
     
