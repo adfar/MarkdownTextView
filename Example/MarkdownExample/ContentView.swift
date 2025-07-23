@@ -139,7 +139,7 @@ Type rapidly to test the <10ms parsing requirement. The formatter should keep up
         .onAppear {
             loadDemoContent()
         }
-        .onChange(of: selectedDemo) { _, _ in
+        .onChange(of: selectedDemo) { _ in
             loadDemoContent()
         }
     }
