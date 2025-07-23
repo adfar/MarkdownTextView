@@ -84,10 +84,10 @@ public struct MarkdownParser {
         var currentPosition = 0
         
         let patterns: [(FormattingType, String)] = [
-            (.bold, "\\*\\*([^*]+)\\*\\*|__([^_]+)__"),
-            (.italic, "\\*([^*]+)\\*|_([^_]+)_"),
-            (.inlineCode, "`([^`]+)`"),
-            (.strikethrough, "~~([^~]+)~~")
+            (.bold, "\\*\\*([^*]+?)\\*\\*|__([^_]+?)__"),
+            (.strikethrough, "~~([^~]+?)~~"),
+            (.inlineCode, "`([^`]+?)`"),
+            (.italic, "\\*([^*]+?)\\*|_([^_]+?)_")
         ]
         
         var matches: [(type: FormattingType, range: NSRange, contentRange: NSRange)] = []
@@ -104,9 +104,19 @@ public struct MarkdownParser {
             }
         }
         
-        matches.sort { $0.range.location < $1.range.location }
+        matches.sort { 
+            if $0.range.location == $1.range.location {
+                return $0.range.length > $1.range.length // Prefer longer matches
+            }
+            return $0.range.location < $1.range.location 
+        }
         
         for match in matches {
+            // Skip overlapping matches
+            if match.range.location < currentPosition {
+                continue
+            }
+            
             if match.range.location > currentPosition {
                 let textStartIndex = text.index(startIndex, offsetBy: currentPosition)
                 let textEndIndex = text.index(startIndex, offsetBy: match.range.location)
