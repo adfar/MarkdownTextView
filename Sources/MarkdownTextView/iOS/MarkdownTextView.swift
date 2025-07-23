@@ -34,6 +34,11 @@ public class MarkdownTextView: UIView {
     // MARK: - Initialization
     
     public override init(frame: CGRect) {
+        // Setup TextKit stack first
+        textStorage.addLayoutManager(layoutManager)
+        layoutManager.addTextContainer(textContainer)
+        
+        // Now create UITextView with properly connected textContainer
         textView = UITextView(frame: .zero, textContainer: textContainer)
         super.init(frame: frame)
         setupTextKit()
@@ -42,6 +47,11 @@ public class MarkdownTextView: UIView {
     }
     
     required init?(coder: NSCoder) {
+        // Setup TextKit stack first
+        textStorage.addLayoutManager(layoutManager)
+        layoutManager.addTextContainer(textContainer)
+        
+        // Now create UITextView with properly connected textContainer
         textView = UITextView(frame: .zero, textContainer: textContainer)
         super.init(coder: coder)
         setupTextKit()
@@ -52,9 +62,7 @@ public class MarkdownTextView: UIView {
     // MARK: - Setup Methods
     
     private func setupTextKit() {
-        // Connect TextKit stack: TextStorage -> LayoutManager -> TextContainer -> TextView
-        textStorage.addLayoutManager(layoutManager)
-        layoutManager.addTextContainer(textContainer)
+        // TextKit stack already connected in initializer
         
         // Configure text container
         textContainer.lineFragmentPadding = 8
