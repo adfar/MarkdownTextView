@@ -13,14 +13,45 @@ public enum FormattingType: CaseIterable {
     case strikethrough
 }
 
+public enum ContainerType {
+    case unorderedList(marker: String)
+    case orderedList(startNumber: Int)
+    case listItem(level: Int, marker: String)
+    case blockquote
+}
+
+public struct FormattedNode {
+    public let type: FormattingType
+    public let fullRange: Range<String.Index>
+    public let contentRange: Range<String.Index>
+    public let markerRanges: [Range<String.Index>]
+    
+    public init(type: FormattingType, fullRange: Range<String.Index>, contentRange: Range<String.Index>, markerRanges: [Range<String.Index>]) {
+        self.type = type
+        self.fullRange = fullRange
+        self.contentRange = contentRange
+        self.markerRanges = markerRanges
+    }
+}
+
+public struct ContainerNode {
+    public let type: ContainerType
+    public let fullRange: Range<String.Index>
+    public let children: [SyntaxNode]
+    public let metadata: [String: Any]
+    
+    public init(type: ContainerType, fullRange: Range<String.Index>, children: [SyntaxNode], metadata: [String: Any] = [:]) {
+        self.type = type
+        self.fullRange = fullRange
+        self.children = children
+        self.metadata = metadata
+    }
+}
+
 public enum SyntaxNode {
     case text(range: Range<String.Index>)
-    case formatted(
-        type: FormattingType,
-        fullRange: Range<String.Index>,
-        contentRange: Range<String.Index>,
-        markerRanges: [Range<String.Index>]
-    )
+    case formatted(FormattedNode)
+    case container(ContainerNode)
 }
 
 public struct SyntaxTree {
@@ -38,8 +69,10 @@ extension SyntaxNode {
         switch self {
         case .text(let range):
             return range
-        case .formatted(_, let fullRange, _, _):
-            return fullRange
+        case .formatted(let node):
+            return node.fullRange
+        case .container(let node):
+            return node.fullRange
         }
     }
     
@@ -48,6 +81,17 @@ extension SyntaxNode {
         case .text:
             return false
         case .formatted:
+            return true
+        case .container:
+            return false
+        }
+    }
+    
+    public var isContainer: Bool {
+        switch self {
+        case .text, .formatted:
+            return false
+        case .container:
             return true
         }
     }

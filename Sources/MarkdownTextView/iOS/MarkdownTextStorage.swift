@@ -43,13 +43,21 @@ public class MarkdownTextStorage: NSTextStorage {
         backingStore.addAttribute(.foregroundColor, value: UIColor.label, range: fullRange)
         
         // Apply formatting based on syntax tree
-        for node in syntaxTree.nodes {
+        applyFormattingToNodes(syntaxTree.nodes, in: text)
+    }
+    
+    private func applyFormattingToNodes(_ nodes: [SyntaxNode], in text: String) {
+        for node in nodes {
             switch node {
             case .text:
                 // Already has default formatting
                 break
-            case .formatted(let type, let fullRange, let contentRange, _):
-                applyFormatting(for: type, contentRange: contentRange, in: text)
+            case .formatted(let formattedNode):
+                applyFormatting(for: formattedNode.type, contentRange: formattedNode.contentRange, in: text)
+            case .container(let containerNode):
+                applyContainerFormatting(for: containerNode, in: text)
+                // Recursively apply formatting to children
+                applyFormattingToNodes(containerNode.children, in: text)
             }
         }
     }
@@ -97,6 +105,33 @@ public class MarkdownTextStorage: NSTextStorage {
             
         case .strikethrough:
             backingStore.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: nsRange)
+        }
+    }
+    
+    private func applyContainerFormatting(for containerNode: ContainerNode, in text: String) {
+        let nsRange = NSRange(containerNode.fullRange, in: text)
+        
+        switch containerNode.type {
+        case .unorderedList(let marker):
+            // Apply list formatting - could add indentation, bullet styling, etc.
+            break
+        case .orderedList(let startNumber):
+            // Apply ordered list formatting
+            break
+        case .listItem(let level, let marker):
+            // Apply list item formatting with proper indentation
+            let indentationSpaces = level * 20 // 20 points per level
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.firstLineHeadIndent = CGFloat(indentationSpaces)
+            paragraphStyle.headIndent = CGFloat(indentationSpaces + 20) // Extra indent for text after bullet
+            backingStore.addAttribute(.paragraphStyle, value: paragraphStyle, range: nsRange)
+        case .blockquote:
+            // Apply blockquote formatting - gray background, indentation, etc.
+            backingStore.addAttribute(.backgroundColor, value: UIColor.systemGray6, range: nsRange)
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.firstLineHeadIndent = 20
+            paragraphStyle.headIndent = 20
+            backingStore.addAttribute(.paragraphStyle, value: paragraphStyle, range: nsRange)
         }
     }
     
