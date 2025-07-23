@@ -216,6 +216,7 @@ Lorem ipsum dolor sit amet, **consectetur adipiscing** elit. *Sed do eiusmod* te
 
 // MARK: - MarkdownTextViewDelegate
 
+@MainActor
 extension AdvancedTestViewController: MarkdownTextViewDelegate {
     func textViewDidChange(_ textView: MarkdownTextView) {
         updateMetrics()

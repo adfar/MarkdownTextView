@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 public protocol MarkdownTextViewDelegate: AnyObject {
     func textViewDidChange(_ textView: MarkdownTextView)
     func textViewDidChangeSelection(_ textView: MarkdownTextView)

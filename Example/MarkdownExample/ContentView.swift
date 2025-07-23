@@ -20,6 +20,7 @@ struct MarkdownTextViewWrapper: UIViewRepresentable {
         Coordinator(self)
     }
     
+    @MainActor
     class Coordinator: NSObject, MarkdownTextViewDelegate {
         let parent: MarkdownTextViewWrapper
         
